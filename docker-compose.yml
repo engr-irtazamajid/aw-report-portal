@@ -1,0 +1,35 @@
+services:
+  backend:
+    build: ./backend
+    environment:
+      APP_ENV: production
+      APP_NAME: AW Client Report Portal
+      DATABASE_URL: sqlite:////app/data/aw_portal.db
+      JWT_SECRET: ${JWT_SECRET:?set a strong JWT_SECRET in your env}
+      JWT_ALGORITHM: HS256
+      JWT_ACCESS_TOKEN_TTL_MINUTES: 15
+      JWT_REFRESH_TOKEN_TTL_DAYS: 7
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      RATE_LIMIT_DEFAULT: 60/minute
+      RATE_LIMIT_LOGIN: 5/15minutes
+      PDF_STORAGE_DIR: /app/data/pdfs
+      LOG_LEVEL: INFO
+      SEED_ADMIN_EMAIL: ${SEED_ADMIN_EMAIL:-admin@windbrook.app}
+      SEED_ADMIN_PASSWORD: ${SEED_ADMIN_PASSWORD:?set seed admin password}
+    volumes:
+      - portal_data:/app/data
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+
+volumes:
+  portal_data:

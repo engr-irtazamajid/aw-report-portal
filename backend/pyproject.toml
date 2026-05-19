@@ -1,0 +1,26 @@
+[project]
+name = "aw-report-portal-backend"
+version = "1.0.0"
+description = "AW Client Report Portal backend (FastAPI)."
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+asyncio_mode = "auto"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+extend-exclude = ["app/db/migrations/versions"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = [
+  "B008", # FastAPI uses function-call defaults for Depends()
+  "RUF012", # SQLAlchemy ClassVar inference is noisy
+  "UP007", # Older Python Optional/Union union syntax is fine in some files
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["E501"]
