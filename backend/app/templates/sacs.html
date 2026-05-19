@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>SACS - {{ client.primary_first_name }} {{ client.primary_last_name }}</title>
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      .sacs-stage {
+        position: relative;
+        width: 100%;
+        height: 7.6in;
+        margin-top: 0.2in;
+      }
+      .bubble {
+        position: absolute;
+        width: 2.4in;
+        height: 2.4in;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        text-align: center;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.18);
+      }
+      .bubble .label {
+        font-size: 11pt;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        opacity: 0.9;
+      }
+      .bubble .amount {
+        font-size: 22pt;
+        font-weight: 800;
+        margin-top: 4px;
+      }
+      .bubble .sub {
+        font-size: 9pt;
+        opacity: 0.85;
+        margin-top: 2px;
+      }
+      .inflow {
+        left: 0.4in;
+        top: 0.6in;
+        background: radial-gradient(circle at 30% 30%, #22c55e, #15803d);
+      }
+      .outflow {
+        left: 2.9in;
+        top: 2.6in;
+        background: radial-gradient(circle at 30% 30%, #ef4444, #b91c1c);
+      }
+      .private-reserve {
+        left: 4.6in;
+        top: 0.4in;
+        background: radial-gradient(circle at 30% 30%, #3b82f6, #1e3a8a);
+      }
+      .outflow-cross {
+        position: absolute;
+        font-size: 60pt;
+        color: #b91c1c;
+        font-weight: 700;
+        left: 3.7in;
+        top: 2.4in;
+        line-height: 1;
+      }
+      svg.arrows {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+      }
+      .floor-note {
+        position: absolute;
+        bottom: 0.4in;
+        left: 0.4in;
+        font-size: 9pt;
+        color: #6b7280;
+      }
+      .legend {
+        position: absolute;
+        bottom: 0.4in;
+        right: 0.4in;
+        text-align: right;
+        font-size: 9pt;
+        color: #475569;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+        margin-top: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>SACS &mdash; Simple Automated Cash Flow</h1>
+      <div class="meta">
+        <strong>{{ client.primary_first_name }} {{ client.primary_last_name }}{% if client.spouse_first_name %} &amp; {{ client.spouse_first_name }} {{ client.spouse_last_name }}{% endif %}</strong><br />
+        Period: {{ report.period_label }}<br />
+        Generated: {{ now.strftime("%B %d, %Y") }}
+      </div>
+    </div>
+
+    <div class="sacs-stage">
+      <svg class="arrows" viewBox="0 0 720 740" preserveAspectRatio="none">
+        <defs>
+          <marker id="arrow-red" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#b91c1c" />
+          </marker>
+          <marker id="arrow-blue" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#1e3a8a" />
+          </marker>
+        </defs>
+        <path d="M 200 230 Q 290 320 320 380" stroke="#b91c1c" stroke-width="6" fill="none" marker-end="url(#arrow-red)" />
+        <path d="M 200 200 Q 360 80 500 130" stroke="#1e3a8a" stroke-width="6" fill="none" marker-end="url(#arrow-blue)" />
+      </svg>
+
+      <div class="bubble inflow">
+        <div class="label">Inflow</div>
+        <div class="amount">{{ totals.sacs_inflow | money }}</div>
+        <div class="sub">monthly take-home</div>
+      </div>
+
+      <div class="bubble outflow">
+        <div class="label">Outflow</div>
+        <div class="amount">{{ totals.sacs_outflow | money }}</div>
+        <div class="sub">expense budget</div>
+      </div>
+      <div class="outflow-cross">&times;</div>
+
+      <div class="bubble private-reserve">
+        <div class="label">Private Reserve</div>
+        <div class="amount">{{ totals.sacs_excess | money }}</div>
+        <div class="sub">monthly excess</div>
+      </div>
+
+      <div class="floor-note">Floor balance per account: {{ floor_amount | money }}</div>
+      <div class="legend">
+        Excess = Inflow &minus; Outflow<br />
+        Target = 6 &times; Outflow + Insurance Deductibles
+      </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <div class="header">
+      <h1>SACS Detail &mdash; Reserve &amp; Investment Balances</h1>
+      <div class="meta">
+        <strong>{{ client.primary_first_name }} {{ client.primary_last_name }}{% if client.spouse_first_name %} &amp; {{ client.spouse_first_name }} {{ client.spouse_last_name }}{% endif %}</strong><br />
+        Period: {{ report.period_label }}<br />
+        Generated: {{ now.strftime("%B %d, %Y") }}
+      </div>
+    </div>
+
+    <div class="section-title">Cashflow Summary</div>
+    <div class="summary-grid">
+      <div class="summary-box">
+        <div class="label">Monthly Inflow</div>
+        <div class="value brand-green">{{ totals.sacs_inflow | money }}</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">Monthly Outflow Budget</div>
+        <div class="value brand-red">{{ totals.sacs_outflow | money }}</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">Monthly Excess to Private Reserve</div>
+        <div class="value brand-blue">{{ totals.sacs_excess | money }}</div>
+      </div>
+      <div class="summary-box">
+        <div class="label">Private Reserve Target</div>
+        <div class="value">{{ totals.sacs_private_reserve_target | money }}</div>
+      </div>
+    </div>
+
+    <div class="section-title">Current Balances</div>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Account</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Private Reserve (High-Yield Savings)</td>
+          <td><strong>{{ private_reserve_balance | money }}</strong></td>
+        </tr>
+        <tr>
+          <td>Schwab Investment Cash</td>
+          <td>{{ schwab_cash_balance | money }}</td>
+        </tr>
+        <tr>
+          <td>Target Savings</td>
+          <td><strong class="brand-blue">{{ totals.sacs_private_reserve_target | money }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>

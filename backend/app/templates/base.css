@@ -1,0 +1,107 @@
+@page {
+  size: Letter;
+  margin: 0.5in 0.6in;
+  @bottom-center {
+    content: "Windbrook Solutions  -  Confidential Client Report";
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 8pt;
+    color: #6b7280;
+  }
+  @bottom-right {
+    content: "Page " counter(page) " of " counter(pages);
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 8pt;
+    color: #6b7280;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Helvetica, "Helvetica Neue", Arial, sans-serif;
+  color: #0f172a;
+  font-size: 10pt;
+  margin: 0;
+}
+
+.brand-blue { color: #1e40af; }
+.brand-green { color: #15803d; }
+.brand-red { color: #b91c1c; }
+.muted { color: #6b7280; }
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 2px solid #1e40af;
+  padding-bottom: 8px;
+  margin-bottom: 16px;
+}
+
+.header h1 {
+  font-size: 18pt;
+  margin: 0;
+  color: #1e40af;
+}
+
+.header .meta {
+  font-size: 9pt;
+  color: #6b7280;
+  text-align: right;
+}
+
+.section-title {
+  font-size: 12pt;
+  font-weight: 600;
+  color: #1e40af;
+  margin: 14px 0 6px;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 3px;
+}
+
+.page-break {
+  page-break-after: always;
+}
+
+.summary-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+}
+
+.summary-table th,
+.summary-table td {
+  text-align: left;
+  padding: 6px 8px;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 10pt;
+}
+
+.summary-table th {
+  background: #f1f5f9;
+  font-weight: 600;
+}
+
+.summary-box {
+  background: #f1f5f9;
+  border-radius: 8px;
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  display: inline-block;
+  margin: 4px;
+}
+
+.summary-box .label {
+  font-size: 9pt;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.summary-box .value {
+  font-size: 14pt;
+  font-weight: 700;
+  color: #0f172a;
+}

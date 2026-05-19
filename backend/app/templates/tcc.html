@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>TCC - {{ client.primary_first_name }} {{ client.primary_last_name }}</title>
+    <link rel="stylesheet" href="base.css" />
+    <style>
+      .client-strip {
+        display: flex;
+        gap: 12px;
+        margin: 8px 0 14px;
+      }
+      .client-card {
+        flex: 1;
+        background: linear-gradient(135deg, #16a34a, #166534);
+        color: #ffffff;
+        border-radius: 14px;
+        padding: 10px 14px;
+        box-shadow: 0 4px 10px rgba(22, 101, 52, 0.18);
+      }
+      .client-card .name {
+        font-size: 13pt;
+        font-weight: 700;
+      }
+      .client-card .meta {
+        font-size: 9pt;
+        opacity: 0.9;
+      }
+
+      .accounts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(1.7in, 1fr));
+        gap: 8px;
+      }
+      .account-bubble {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 8px 10px;
+        text-align: center;
+      }
+      .account-bubble .type {
+        font-size: 9pt;
+        font-weight: 600;
+        color: #475569;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .account-bubble .balance {
+        font-size: 12pt;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .account-bubble .sub {
+        font-size: 8pt;
+        color: #64748b;
+      }
+
+      .totals-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(1.7in, 1fr));
+        gap: 8px;
+        margin-top: 10px;
+      }
+      .gray-box {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 8px 12px;
+      }
+      .gray-box .label {
+        font-size: 8pt;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #475569;
+        font-weight: 600;
+      }
+      .gray-box .value {
+        font-size: 13pt;
+        font-weight: 700;
+        color: #0f172a;
+        margin-top: 2px;
+      }
+      .gray-box.grand {
+        background: #e2e8f0;
+        border-color: #94a3b8;
+      }
+      .gray-box.grand .value {
+        color: #1e3a8a;
+        font-size: 15pt;
+      }
+      .gray-box.liab .value {
+        color: #b91c1c;
+      }
+      .trust-card {
+        background: #ecfeff;
+        border: 1px solid #67e8f9;
+        border-radius: 12px;
+        padding: 10px 14px;
+        margin-top: 8px;
+      }
+      .trust-card .label {
+        font-size: 9pt;
+        color: #0e7490;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .trust-card .value {
+        font-size: 13pt;
+        font-weight: 700;
+        color: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <h1>TCC &mdash; Total Client Chart</h1>
+      <div class="meta">
+        Period: {{ report.period_label }}<br />
+        Generated: {{ now.strftime("%B %d, %Y") }}
+      </div>
+    </div>
+
+    <div class="client-strip">
+      <div class="client-card">
+        <div class="name">{{ client.primary_first_name }} {{ client.primary_last_name }}</div>
+        <div class="meta">
+          DOB {{ client.primary_dob.strftime("%m/%d/%Y") }} &middot; Age {{ primary_age }}
+          {% if primary_ssn_masked %}&middot; SSN {{ primary_ssn_masked }}{% endif %}
+        </div>
+      </div>
+      {% if client.spouse_first_name %}
+      <div class="client-card">
+        <div class="name">{{ client.spouse_first_name }} {{ client.spouse_last_name }}</div>
+        <div class="meta">
+          DOB {{ client.spouse_dob.strftime("%m/%d/%Y") }}{% if spouse_age %} &middot; Age {{ spouse_age }}{% endif %}
+          {% if spouse_ssn_masked %}&middot; SSN {{ spouse_ssn_masked }}{% endif %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="section-title">Retirement Accounts &mdash; {{ client.primary_first_name }}</div>
+    {% if primary_retirement %}
+    <div class="accounts-grid">
+      {% for account in primary_retirement %}
+      <div class="account-bubble">
+        <div class="type">{{ account.label }}</div>
+        <div class="balance">{{ account.balance | money }}</div>
+        <div class="sub">{{ account.institution }}{% if account.last_four %} &middot; ****{{ account.last_four }}{% endif %}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="muted">No retirement accounts on file.</div>
+    {% endif %}
+
+    {% if client.spouse_first_name %}
+    <div class="section-title">Retirement Accounts &mdash; {{ client.spouse_first_name }}</div>
+    {% if spouse_retirement %}
+    <div class="accounts-grid">
+      {% for account in spouse_retirement %}
+      <div class="account-bubble">
+        <div class="type">{{ account.label }}</div>
+        <div class="balance">{{ account.balance | money }}</div>
+        <div class="sub">{{ account.institution }}{% if account.last_four %} &middot; ****{{ account.last_four }}{% endif %}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="muted">No retirement accounts on file.</div>
+    {% endif %}
+    {% endif %}
+
+    <div class="section-title">Non-Retirement Accounts</div>
+    {% if non_retirement %}
+    <div class="accounts-grid">
+      {% for account in non_retirement %}
+      <div class="account-bubble">
+        <div class="type">{{ account.label }}</div>
+        <div class="balance">{{ account.balance | money }}</div>
+        <div class="sub">{{ account.institution }}{% if account.last_four %} &middot; ****{{ account.last_four }}{% endif %}{% if account.owner == 'joint' %} &middot; Joint{% endif %}</div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="muted">No non-retirement accounts on file.</div>
+    {% endif %}
+
+    {% if trust_entries %}
+    <div class="section-title">Trust</div>
+    {% for trust in trust_entries %}
+    <div class="trust-card">
+      <div class="label">{{ trust.label }}</div>
+      <div class="value">{{ trust.balance | money }}</div>
+      <div class="sub">{{ trust.address }}</div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="totals-grid">
+      <div class="gray-box">
+        <div class="label">{{ client.primary_first_name }} retirement</div>
+        <div class="value">{{ totals.tcc_client1_retirement_total | money }}</div>
+      </div>
+      {% if client.spouse_first_name %}
+      <div class="gray-box">
+        <div class="label">{{ client.spouse_first_name }} retirement</div>
+        <div class="value">{{ totals.tcc_client2_retirement_total | money }}</div>
+      </div>
+      {% endif %}
+      <div class="gray-box">
+        <div class="label">Non-retirement</div>
+        <div class="value">{{ totals.tcc_non_retirement_total | money }}</div>
+      </div>
+      {% if trust_entries %}
+      <div class="gray-box">
+        <div class="label">Trust</div>
+        <div class="value">{{ totals.tcc_trust_total | money }}</div>
+      </div>
+      {% endif %}
+      <div class="gray-box grand">
+        <div class="label">Grand total net worth</div>
+        <div class="value">{{ totals.tcc_grand_total | money }}</div>
+      </div>
+    </div>
+
+    {% if liabilities %}
+    <div class="section-title">Liabilities (reported separately, not subtracted)</div>
+    <table class="summary-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Label</th>
+          <th>Rate</th>
+          <th>Balance</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for liability in liabilities %}
+        <tr>
+          <td>{{ liability.type }}</td>
+          <td>{{ liability.label }}{% if liability.last_four %} &middot; ****{{ liability.last_four }}{% endif %}</td>
+          <td>{% if liability.interest_rate is not none %}{{ "%.2f"|format(liability.interest_rate) }}%{% else %}&mdash;{% endif %}</td>
+          <td>{{ liability.balance | money }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="totals-grid">
+      <div class="gray-box liab">
+        <div class="label">Liabilities total (separate)</div>
+        <div class="value">{{ totals.tcc_liabilities_total | money }}</div>
+      </div>
+    </div>
+    {% endif %}
+  </body>
+</html>
