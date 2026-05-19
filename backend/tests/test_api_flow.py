@@ -34,9 +34,15 @@ def client(tmp_path_factory):
 
 
 def _login(client: TestClient) -> str:
+    from app.core.config import get_settings
+
+    settings = get_settings()
     resp = client.post(
         "/api/v1/auth/login",
-        json={"email": "admin@windbrook.app", "password": "ChangeMe!2026"},
+        json={
+            "email": settings.seed_admin_email,
+            "password": settings.seed_admin_password,
+        },
     )
     assert resp.status_code == 200, resp.text
     return resp.json()["access_token"]
@@ -56,7 +62,7 @@ def test_login_required_for_clients(client: TestClient):
 def test_login_rejects_bad_credentials(client: TestClient):
     response = client.post(
         "/api/v1/auth/login",
-        json={"email": "admin@windbrook.app", "password": "wrong-password!"},
+        json={"email": "admin@windbrook.app", "password": "definitely-not-the-right-password!"},
     )
     assert response.status_code == 401
 
